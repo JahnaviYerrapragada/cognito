@@ -1,4 +1,5 @@
 'use strict';
+import fetch from 'cross-fetch';
 
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const poolData = { UserPoolId : 'us-east-1_TcoKGbf7n',
