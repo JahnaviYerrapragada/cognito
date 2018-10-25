@@ -9,7 +9,11 @@ module.exports.verifyToken = (event, context, callback) => {
     context.succeed(generatePolicy(userName, 'Allow', event.methodArn));
   }).catch(function(error) {
      context.fail("Unauthorized");
-  })
+  });
+};
+
+module.exports.getItem = (event, context, callback) => {
+  
 };
 
 var generatePolicy = function(principalId, effect, resource) {
@@ -27,4 +31,4 @@ var generatePolicy = function(principalId, effect, resource) {
         authResponse.policyDocument = policyDocument;
     }
     return authResponse;
-}
+};

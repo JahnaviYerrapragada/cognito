@@ -1,64 +1,39 @@
-'user strict';
+'use strict';
 
-var AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-//ar CognitoUserPool = AmazonCognitoIdentity.CognitoUserPool;
-
-var userpoolId = '';
-var clientId = '' ;
-
-var poolData = {
-    UserPoolId: '...', // Your user pool id here
-    ClientId: '...' // Your client id here
+const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const poolData = { UserPoolId : 'us-east-1_TcoKGbf7n',
+    ClientId : '4pe2usejqcdmhi0a25jp4b5sh3'
 };
+const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
-function getUserProfile(userName,password) {
-
-    var authenticationData = {
-        Username : 'username',
-        Password : 'password',
+function getUserProfile(body) {
+    const authenticationData = {
+        Username : body.userName,
+        Password : body.Password,
+    }; 
+    const userData = {
+        Username : body.userName,
+        Pool : userPool
     };
-    var userData = {
-        Username: 'username',
-        Pool: userPool
-    };
-
-    var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
     cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: function (result) {
-            var accessToken = result.getAccessToken().getJwtToken();
-    
-            //POTENTIAL: Region needs to be set if not already set previously elsewhere.
-            AWS.config.region = '<region>';
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId: '...', // your identity pool id here
-                Logins: {
-                    // Change the key below according to the specific region your user pool is in.
-                    'cognito-idp.<region>.amazonaws.com/<YOUR_USER_POOL_ID>': result.getIdToken().getJwtToken()
-                }
-            });
-            //refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
-            AWS.config.credentials.refresh((error) => {
-                if (error) {
-                    console.error(error);
-                } else {
-                    // Instantiate aws sdk service objects now that the credentials have been updated.
-                    // example: var s3 = new AWS.S3();
-                    console.log('Successfully logged!');
-    
-                    module.exports = {
-                        getUserProfile: getUserProfile
-                    };
-                }
-            });
+        onSuccess: function (session) {
+           const tokens = {
+               accessToken: session.getAccessToken().getJwtToken(),
+               idToken: session.getIdToken().getJwtToken(),
+               refreshToken: session.getRefreshToken().getToken()
+           };
+           cognitoUser['tokens'] = tokens; // Can be used later
+           console.log("Authenticated User  : "+JSON.stringify(tokens));
+           resolve(cognitoUser);
         },
-        onFailure: function (err) {
-            console.log("error message"+JSON.stringify(err));
+        onFailure: function(err) {
+            console.log("Unable to authenticate user   "+JSON.stringify(err));
+            return reject(err);
         },
     });
-
-};
+}
 
 module.exports = {
     getUserProfile : getUserProfile
