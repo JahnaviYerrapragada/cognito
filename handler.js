@@ -1,11 +1,12 @@
 'use strict';
-var userProfile = require('./service/userProfile');
+var CogProfile = require('./service/cognitoservice');
 
 module.exports.verifyToken = (event, context, callback) => {
-  var token = event.authorizationToken.split(' ')[1];
-
-  userProfile.getUserProfile(token).then(function(profile) {
-    context.succeed(generatePolicy('user', 'Allow', event.methodArn));
+  const body = JSON.parse(event.body);
+  var userName = body.userName;
+  var password = body.password;
+  CogProfile.getUserProfile(userName,password).then(function(profile) {
+    context.succeed(generatePolicy(userName, 'Allow', event.methodArn));
   }).catch(function(error) {
      context.fail("Unauthorized");
   })
