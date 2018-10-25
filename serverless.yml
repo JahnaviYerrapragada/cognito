@@ -23,40 +23,39 @@ functions:
           path: /item
           method: get
           
-  resources:
-    Resources:
-      CognitoUserpool:
-        Type: AWS::Cognito::Userpool
-        Properties:
-          UserPoolName: headlight_user_pool
-      CognitoUserPoolClient:
-        Type: AWS::Cognito::UserPoolClient
-        Properties:
-          ClientName: headlight_client
-          UserPoolId:
-            Ref: CognitoUserpool
-      CognitoUserPoolDomainName:
-        Type: Custom::CognitoUserPoolDomain
-        Properties:
-           UserPoolId:
-            Ref: CognitoUserpool
-            Domain: 'test-headlight-01'
-      CognitoUserPoolClient:
-        Type: 'Custom::CognitoUserPoolClientSettings'
-        Properties:
-          UserPoolId:
-            Ref: CognitoUserpool
-          UserPoolClientId:
-            Ref: CognitoUserPoolClient
-          SupportedIdentityProviders:
-            - SAML
-          CallbackURL: 'https://www.amazon.com'
-          LogoutURL: 'https://www.google.com'
-          AllowedOAuthFlowsUserPoolClient: true
-          AllowedOAuthFlows:
-             - code
-          AllowedOAuthScopes:
-             - openid
+resources:
+  CognitoUserpool:
+    Type: AWS::Cognito::Userpool
+      Properties:
+      UserPoolName: headlight_user_pool
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+      Properties:
+      ClientName: headlight_client
+      UserPoolId:
+        Ref: CognitoUserpool
+  CognitoUserPoolDomainName:
+    Type: Custom::CognitoUserPoolDomain
+      Properties:
+      UserPoolId:
+        Ref: CognitoUserpool
+      Domain: 'test-headlight-01'
+  CognitoUserPoolClientSettings:
+    Type: Custom::CognitoUserPoolClientSettings
+      Properties:
+      UserPoolId:
+        Ref: CognitoUserpool
+      UserPoolClientId:
+        Ref: CognitoUserPoolClient
+      SupportedIdentityProviders:
+        - SAML
+      CallbackURL: 'https://www.amazon.com'
+      LogoutURL: 'https://www.google.com'
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - openid
 
 
 
